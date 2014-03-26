@@ -105,17 +105,23 @@ def get_VF(data_table, T):
 def fit_BM3_EOS(V, F, verbose=False):
     """Fit parameters of a 3rd order BM EOS"""
     popt, pconv = spopt.curve_fit(BM3_EOS_energy, V, F, 
-                   p0=[np.mean(V), np.mean(F), 300.0, 4.0])
+                   p0=[np.mean(V), np.mean(F), 150.0, 4.0])
     V0 = popt[0]
     E0 = popt[1]
     K0 = popt[2]
     Kp0 = popt[3]
+    if verbose:
+        print "Fitted 3rd order Birch-Murnaghan EOS parameters:"
+        print " E0  = {:7g} eV".format(E0)
+        print " V0  = {:7g} A**3".format(V0)
+        print " K0  = {:7g} eV.A**-3 ( = {:7g} GPa)".format(K0, K0*160.218)
+        print " K0' = {:7g}".format(Kp0)
     return V0, E0, K0, Kp0
 
 def BM3_EOS_energy (V, V0, E0, K0, Kp0):
     """Calculate the energy from a 3rd order BM EOS"""
 
-    E = E0 + ((9.0*V0*K0)/16.0) * ((((V0/V)**(2.0/3.0)-1.0)**3.0 - 1.0) +
+    E = E0 + ((9.0*V0*K0)/16.0) * ( (((V0/V)**(2.0/3.0)-1.0)**3.0)*Kp0 +
              (((V0/V)**(2.0/3.0) - 1.0)**2.0 * (6.0-4.0*(V0/V)**(2.0/3.0))))
     return E
 
@@ -142,15 +148,10 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    V, F = get_VF(data, 2000)
+    V, F = get_VF(data, 300)
     print F
     print V
-    V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F)
-    print V0
-    print E0
-    # Convert bulk modulus from eV.A^-3 to GPa...
-    print K0*160.218
-    print Kp0
+    V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F, verbose=True)
     BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0)
     
     
