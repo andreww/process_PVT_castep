@@ -125,6 +125,13 @@ def BM3_EOS_energy (V, V0, E0, K0, Kp0):
              (((V0/V)**(2.0/3.0) - 1.0)**2.0 * (6.0-4.0*(V0/V)**(2.0/3.0))))
     return E
 
+def BM3_EOS_pressure(V, V0, K0, Kp0):
+    """Calculate the pressure from a 3rd order BM EOS"""
+
+    P = (3.0*K0/2.0) * ((V0/V)**(7.0/3.0)-(V0/V)**(5.0/3.0)) * \
+                      (1.0+(3.0/4.0)*(Kp0-4.0)*((V0/V)**(2.0/3.0)-1))
+    return P 
+
 def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
     import matplotlib
     if filename is not None:
@@ -153,7 +160,39 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
         plt.savefig(filename)
     else:
         plt.show()
+
     
+def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, 
+                                 filename=None, Ts=None):
+    import matplotlib
+    if filename is not None:
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    if isinstance(V0, np.ndarray):
+        fine_vs = np.linspace(Vmin, Vmax, 100)
+        fine_ps = BM3_EOS_pressure(fine_vs, V0, K0, Kp0)
+        fine_ps = fine_ps * 160.218
+        ax.plot(fine_ps, fine_vs, 'r-')
+    else:
+        # Assume we can iteratte on T
+        for i in range(len(Ts)):
+            fine_vs = np.linspace(Vmin, Vmax, 100)
+            fine_ps = BM3_EOS_pressure(fine_vs, V0[i], K0[i], Kp0[i])
+            # Put in GPa
+            fine_ps = fine_ps * 160.218
+            ax.plot(fine_ps, fine_vs, '-', label='{:5g}'.format(Ts[i]))
+        ax.legend(title="Temperature (K)")
+
+    ax.set_xlabel('P (GPa)')
+    ax.set_ylabel('V (A**3)')
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
+
 
 if __name__=='__main__':
     import sys
@@ -173,12 +212,12 @@ if __name__=='__main__':
         V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F, verbose=True)
         Vs.append(V)
         Fs.append(F)
-        print K0
         K0s.append(K0)
         Kp0s.append(Kp0)
         E0s.append(E0)
         V0s.append(V0)
 
     BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
+    BM3_EOS_pressure_plot(60, 80, V0s, K0s, Kp0s, Ts=Ts)
     
     
