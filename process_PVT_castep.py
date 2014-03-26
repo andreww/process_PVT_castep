@@ -125,17 +125,30 @@ def BM3_EOS_energy (V, V0, E0, K0, Kp0):
              (((V0/V)**(2.0/3.0) - 1.0)**2.0 * (6.0-4.0*(V0/V)**(2.0/3.0))))
     return E
 
-def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None):
+def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
     import matplotlib
     if filename is not None:
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter(V, F)
-    fine_vs = np.linspace(np.min(V), np.max(V), 100)
-    fine_fs = BM3_EOS_energy(fine_vs, V0, E0, K0, Kp0)
-    ax.plot(fine_vs, fine_fs, 'r-')
+
+    if isinstance(V, np.ndarray):
+        ax.scatter(V, F)
+        fine_vs = np.linspace(np.min(V), np.max(V), 100)
+        fine_fs = BM3_EOS_energy(fine_vs, V0, E0, K0, Kp0)
+        ax.plot(fine_vs, fine_fs, 'r-')
+    else:
+        # Assume we can iteratte on T
+        for i in range(len(Ts)):
+            fine_vs = np.linspace(np.min(V[i]), np.max(V[i]), 100)
+            fine_fs = BM3_EOS_energy(fine_vs, V0[i], E0[i], K0[i], Kp0[i])
+            ax.plot(fine_vs, fine_fs, 'k--')
+            ax.plot(V[i], F[i], 'o', label='{:5g}'.format(Ts[i]))
+        ax.legend(title="Temperature (K)")
+
+    ax.set_xlabel('V (A**3)')
+    ax.set_ylabel('F (eV)')
     if filename is not None:
         plt.savefig(filename)
     else:
@@ -148,10 +161,24 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    V, F = get_VF(data, 300)
-    print F
-    print V
-    V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F, verbose=True)
-    BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0)
+    Ts = [300, 500, 1000, 2000, 3000, 4000]
+    Vs = []
+    Fs = []
+    K0s = []
+    Kp0s = []
+    E0s = []
+    V0s = []
+    for T in Ts:
+        V, F = get_VF(data, T)
+        V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F, verbose=True)
+        Vs.append(V)
+        Fs.append(F)
+        print K0
+        K0s.append(K0)
+        Kp0s.append(Kp0)
+        E0s.append(E0)
+        V0s.append(V0)
+
+    BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
     
     
