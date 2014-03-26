@@ -256,6 +256,16 @@ def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0,
     else:
         plt.show()
 
+def get_V(P, T, fV0, fK0, fKp0):
+
+    # Put P into eV/A**3
+    P = P / 160.218
+    V0 = fV0(T)
+    K0 = fK0(T)
+    Kp0 = fKp0(T)
+    p_err_func = lambda v : BM3_EOS_pressure(v, V0, K0, Kp0) - P
+    V = spopt.brentq(p_err_func, 0.1*V0, 2.0*V0)
+    return V
 
 if __name__=='__main__':
     import sys
@@ -263,7 +273,7 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    Ts = [300, 500, 1000, 2000, 3000, 4000]
+    Ts = [300, 500, 1000, 1500, 2000, 2500]
     Vs = []
     Fs = []
     K0s = []
@@ -285,4 +295,12 @@ if __name__=='__main__':
 
     fV0, fE0, fK0, fKp0 = fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
         plot=True)
+
+    print 0, 300, get_V(0, 300, fV0, fK0, fKp0)
+    print 10, 300, get_V(10, 300, fV0, fK0, fKp0)
+    print 10, 500, get_V(10, 500, fV0, fK0, fKp0)
+    print 20, 500, get_V(20, 500, fV0, fK0, fKp0)
+    print 30, 500, get_V(30, 500, fV0, fK0, fKp0)
+    print 30, 1500, get_V(30, 1500, fV0, fK0, fKp0)
+    print 30, 2000, get_V(30, 2000, fV0, fK0, fKp0)
     
