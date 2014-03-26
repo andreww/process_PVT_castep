@@ -4,9 +4,6 @@ import re
 
 import numpy as np
 
-# For each file - get the final cell volume
-# then extract the T, F data
-# put everything in a table
 # extract to do the fitting
 # and some graphing
 
@@ -14,6 +11,8 @@ vol_re = re.compile(r'Current cell volume =\s+(\d+\.\d+)\s+A\*\*3')
 zpe_re = re.compile(r'Zero-point energy =\s+(\d+\.\d+)\s+eV')
 tmo_re = re.compile(
    r'(\d+\.\d+)\s+(\d+\.\d+)\s+([+-]?\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)')
+ufb_re = re.compile(
+   r'Total energy corrected for finite basis set =\s+([+-]?\d+\.\d+)\s+eV')
 
 def parse_castep_file(filename, current_data=[]):
 
@@ -29,6 +28,11 @@ def parse_castep_file(filename, current_data=[]):
         if match: 
             # We need to keep track of the *current* volume
             current_volume = float(match.group(1))
+            continue
+        match = ufb_re.search(line)
+        if match:
+            # We need to keep track of the *current* internal energy
+            U = float(match.group(1))
             continue
         match = zpe_re.search(line)
         if match:
@@ -48,18 +52,19 @@ def parse_castep_file(filename, current_data=[]):
                 F = float(match.group(3))
                 S = float(match.group(4))
                 Cv = float(match.group(5))
-                current_data.append((current_volume, zpe, T, E, F, S, Cv))
+                current_data.append((current_volume, U, zpe, T, 
+                                                       E, F, S, Cv))
                 continue
             else:
                 # Must be at the end of this thermo table
                 in_thermo = False
                 zpe = None
+                U = None
+                current_volume = None
                 continue
 
     fh.close()
     return current_data
-
-        
 
 
 if __name__=='__main__':
