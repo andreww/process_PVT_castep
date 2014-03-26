@@ -15,6 +15,22 @@ ufb_re = re.compile(
    r'Total energy corrected for finite basis set =\s+([+-]?\d+\.\d+)\s+eV')
 
 def parse_castep_file(filename, current_data=[]):
+    """Read a Castep output file with thermodynamic data and extract it
+
+       This appends thermodynamic data, in the form of a tuple, for 
+       each temperature at which lattice dynamics was used to calculate
+       thermodynamic data. The tuple includes (in order) the cell
+       volume (A**3), static internal energy including the finite basis
+       set correctio (eV), the zero point energy (eV), the temperature 
+       (K), vibrational energy (eV), vibriational component of the 
+       Helmohotz free energy (eV), the entropy (J/mol/K) and heat 
+       capacity (J/mol/K). These tuples are returned in a list
+       in the order found in the file. Multiple runs can be joined 
+       together in one file and this is handled correctly. If multile 
+       files need to be parsed the function can be called repetedly 
+       with the output list passed in as the optional current_data
+       argument and new data will be appended to this list.
+    """
 
     fh = open(filename, 'r')
     current_volume = None
@@ -66,6 +82,22 @@ def parse_castep_file(filename, current_data=[]):
     fh.close()
     return current_data
 
+def get_VF(data_table, T):
+    """Given the data file from parse_castep_file return useful data at T
+
+       The data table is searched for data at the target temperature, T
+       (K), and numpy arrays of volumes (A**3) and the vibrational 
+       part of the helmoltz free energy (eV) is returned.
+    """
+    F = []
+    V = []
+    for line in data_table:
+        if line[3] == T:
+            F.append(line[5])
+            V.append(line[0])
+    F = np.array(F)
+    V = np.array(V)
+    return V, F
 
 if __name__=='__main__':
     import sys
@@ -73,6 +105,8 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    print data
+    F, V = get_VF(data, 3000)
+    print F
+    print V
     
     
