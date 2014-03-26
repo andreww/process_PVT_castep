@@ -132,6 +132,69 @@ def BM3_EOS_pressure(V, V0, K0, Kp0):
                       (1.0+(3.0/4.0)*(Kp0-4.0)*((V0/V)**(2.0/3.0)-1))
     return P 
 
+def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
+
+    poptv, pconv = spopt.curve_fit(_quint_func, np.array(Ts), 
+                      np.array(V0s), p0=[0.0, 0.0, 0.0, 
+                      0.0, 0.0, np.mean(V0s)])
+    fV0 = lambda t: _quint_func(t, poptv[0], poptv[1], poptv[2],
+                                       poptv[3], poptv[4], poptv[5])
+
+    popte, pconv = spopt.curve_fit(_quint_func, np.array(Ts), 
+                      np.array(E0s), p0=[0.0, 0.0, 0.0,
+                      0.0, 0.0, np.mean(E0s)])
+    fE0 = lambda t: _quint_func(t, popte[0], popte[1], popte[2],
+                                       popte[3], popte[4], popte[5])
+
+    poptk, pconv = spopt.curve_fit(_quint_func, np.array(Ts), 
+                      np.array(K0s), p0=[0.0, 0.0, 0.0,
+                      0.0, 0.0, np.mean(K0s)])
+    fK0 = lambda t: _quint_func(t, poptk[0], poptk[1], poptk[2],
+                                       poptk[3], poptk[4], poptk[5])
+
+    poptkp, pconv = spopt.curve_fit(_quint_func, np.array(Ts), 
+                      np.array(Kp0s), p0=[0.0, 0.0, 0.0,
+                      0.0, 0.0, np.mean(Kp0s)])
+    fKp0 = lambda t: _quint_func(t, poptkp[0], poptkp[1], poptkp[2],
+                                        poptkp[3], poptkp[4], poptkp[5])
+
+    if plot:
+        import matplotlib
+        if filename is not None:
+            matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        fTs = np.linspace(300, 4000, 100)
+        fig = plt.figure()
+        ax = fig.add_subplot(221)
+        ax.plot(Ts, V0s, 'ko')
+        ax.plot(fTs, fV0(fTs), 'k-')
+        ax.set_xlabel('T (K)')
+        ax.set_ylabel('V0 (A**3)')
+        ax = fig.add_subplot(222)
+        ax.plot(Ts, K0s, 'ko')
+        ax.plot(fTs, fK0(fTs), 'k-')
+        ax.set_xlabel('T (K)')
+        ax.set_ylabel('K0 (eV.A**-3)')
+        ax = fig.add_subplot(223)
+        ax.plot(Ts, Kp0s, "ko")
+        ax.plot(fTs, fKp0(fTs), 'k-')
+        ax.set_xlabel('T (K)')
+        ax.set_ylabel("K'0" )
+        ax = fig.add_subplot(224)
+        ax.plot(Ts, E0s, 'ko')
+        ax.plot(fTs, fE0(fTs), 'k-')
+        ax.set_xlabel('T (K)')
+        ax.set_ylabel("E0 (eV)" )
+        if filename is not None:
+            plt.savefig(filename)
+        else:
+            plt.show()
+
+    return fV0, fE0, fK0, fKp0
+
+def _quint_func(x, a, b, c, d, e, f):
+    return a*x**5.0 + b*x**4.0 + c*x**3.0 + d*x**2.0 + e*x + f
+
 def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
     import matplotlib
     if filename is not None:
@@ -219,5 +282,7 @@ if __name__=='__main__':
 
     BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
     BM3_EOS_pressure_plot(60, 80, V0s, K0s, Kp0s, Ts=Ts)
-    
+
+    fV0, fE0, fK0, fKp0 = fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
+        plot=True)
     
