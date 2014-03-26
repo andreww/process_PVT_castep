@@ -3,6 +3,7 @@
 import re
 
 import numpy as np
+import scipy.optimize as spopt
 
 # extract to do the fitting
 # and some graphing
@@ -93,11 +94,47 @@ def get_VF(data_table, T):
     V = []
     for line in data_table:
         if line[3] == T:
-            F.append(line[5])
+            # Move to total helmholtz free energy
+            # this is U_0(V) + H_vib(V,T)
+            F.append(line[5]+line[1])
             V.append(line[0])
     F = np.array(F)
     V = np.array(V)
     return V, F
+
+def fit_BM3_EOS(V, F, verbose=False):
+    """Fit parameters of a 3rd order BM EOS"""
+    popt, pconv = spopt.curve_fit(BM3_EOS_energy, V, F, 
+                   p0=[np.mean(V), np.mean(F), 300.0, 4.0])
+    V0 = popt[0]
+    E0 = popt[1]
+    K0 = popt[2]
+    Kp0 = popt[3]
+    return V0, E0, K0, Kp0
+
+def BM3_EOS_energy (V, V0, E0, K0, Kp0):
+    """Calculate the energy from a 3rd order BM EOS"""
+
+    E = E0 + ((9.0*V0*K0)/16.0) * ((((V0/V)**(2.0/3.0)-1.0)**3.0 - 1.0) +
+             (((V0/V)**(2.0/3.0) - 1.0)**2.0 * (6.0-4.0*(V0/V)**(2.0/3.0))))
+    return E
+
+def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None):
+    import matplotlib
+    if filename is not None:
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(V, F)
+    fine_vs = np.linspace(np.min(V), np.max(V), 100)
+    fine_fs = BM3_EOS_energy(fine_vs, V0, E0, K0, Kp0)
+    ax.plot(fine_vs, fine_fs, 'r-')
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
+    
 
 if __name__=='__main__':
     import sys
@@ -105,8 +142,15 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    F, V = get_VF(data, 3000)
+    V, F = get_VF(data, 2000)
     print F
     print V
+    V0, E0, K0, Kp0 =  fit_BM3_EOS(V, F)
+    print V0
+    print E0
+    # Convert bulk modulus from eV.A^-3 to GPa...
+    print K0*160.218
+    print Kp0
+    BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0)
     
     
