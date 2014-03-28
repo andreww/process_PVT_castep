@@ -168,9 +168,13 @@ if __name__=='__main__':
     Kp0s = []
     E0s = []
     V0s = []
+    min_V = 1.0E12
+    max_V = 0.0
     for T in Ts:
         V, F = get_VF(data, T)
         V0, E0, K0, Kp0 =  eos.fit_BM3_EOS(V, F, verbose=True)
+        if np.max(V) > max_V: max_V = np.max(V)
+        if np.min(V) < min_V: min_V = np.min(V)
         Vs.append(V)
         Fs.append(F)
         K0s.append(K0)
@@ -187,10 +191,14 @@ if __name__=='__main__':
     eos.fit_BM3_EOS(Vzpe, Fzpe, verbose=True)
 
     eos.BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
-    eos.BM3_EOS_pressure_plot(60, 80, V0s, K0s, Kp0s, Ts=Ts)
+    eos.BM3_EOS_pressure_plot(np.floor(min_V), np.ceil(max_V), V0s, 
+        K0s, Kp0s, Ts=Ts)
+
+    eos.BM3_EOS_twoplots(np.floor(min_V), np.ceil(max_V), 
+        Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='MgO_EOS.eps')
 
     fV0, fE0, fK0, fKp0 = eos.fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
-        plot=True)
+        plot=True, filename='MgO_EOSparams.eps')
 
     print 0, 300, eos.get_V(0, 300, fV0, fK0, fKp0)
     print 10, 300, eos.get_V(10, 300, fV0, fK0, fKp0)

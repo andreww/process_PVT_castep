@@ -67,27 +67,31 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
             matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         fTs = np.linspace(0, 4000, 100)
-        fig = plt.figure()
+        if filename is not None:
+            fig = plt.figure(figsize=(14.0,14.0), dpi=150)
+            #fig.subplots_adjust(left=0.2, right=0.8, top=0.8, bottom=0.2)
+        else:
+            fig = plt.figure()
         ax = fig.add_subplot(221)
         ax.plot(Ts, V0s, 'ko')
         ax.plot(fTs, fV0(fTs), 'k-')
-        ax.set_xlabel('T (K)')
-        ax.set_ylabel('V0 (A**3)')
+        ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel('V$_0$ (A$^3$)')
         ax = fig.add_subplot(222)
-        ax.plot(Ts, K0s, 'ko')
-        ax.plot(fTs, fK0(fTs), 'k-')
+        ax.plot(Ts, np.array(K0s)*160.218, 'ko')
+        ax.plot(fTs, fK0(fTs)*160.218, 'k-')
         ax.set_xlabel('T (K)')
-        ax.set_ylabel('K0 (eV.A**-3)')
+        ax.set_ylabel('K$_0$ (GPa)')
         ax = fig.add_subplot(223)
         ax.plot(Ts, Kp0s, "ko")
         ax.plot(fTs, fKp0(fTs), 'k-')
-        ax.set_xlabel('T (K)')
-        ax.set_ylabel("K'0" )
+        ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel("K$^\{prime}_0$" )
         ax = fig.add_subplot(224)
         ax.plot(Ts, E0s, 'ko')
         ax.plot(fTs, fE0(fTs), 'k-')
-        ax.set_xlabel('T (K)')
-        ax.set_ylabel("E0 (eV)" )
+        ax.set_xlabel('Temperature (K)')
+        ax.set_ylabel("F$_0$ (eV)" )
         if filename is not None:
             plt.savefig(filename)
         else:
@@ -134,7 +138,8 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
                 staticK0, staticKp0)
             ax.plot(fine_vs, fine_fs, '-k', color=c)
             ax.plot(staticV, staticF, 'sk', label='static')
-        ax.legend(ncol=3)
+        ax.legend(ncol=3, bbox_to_anchor=(0.  , 0.9, 1., .102), loc=3,
+                   mode="expand", borderaxespad=0., numpoints=1)
 
     ax.set_xlabel('Volume (A$^3$)')
     ax.set_ylabel('Helmhotz free energy (eV)')
@@ -146,7 +151,7 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
 
     
 def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, ax=None,
-                                 filename=None, Ts=None):
+                                 filename=None, Ts=None, leg=True):
     import matplotlib
     if filename is not None:
         matplotlib.use('Agg')
@@ -174,7 +179,7 @@ def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, ax=None,
             c = cmap.to_rgba(Ts[i])
             ax.plot(fine_ps, fine_vs, '-', color=c, 
                 label='{:5g} K'.format(Ts[i]))
-        ax.legend()
+        if leg: ax.legend()
 
     ax.set_xlabel('Pressure (GPa)')
     ax.set_ylabel('Volume (A$^3$)')
@@ -183,6 +188,25 @@ def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, ax=None,
             plt.savefig(filename)
         else:
             plt.show()
+
+def BM3_EOS_twoplots(minV, maxV, Vs, Fs, V0s, E0s, K0s, 
+        Kp0s, Ts, filename=None):
+    import matplotlib
+    if filename is not None:
+        matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(5.83,8.27), dpi=150)
+    fig.subplots_adjust(left=0.2, right=0.9, top=0.9, bottom=0.1)
+    ax1 = fig.add_subplot(211)
+    BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts, ax=ax1)
+    ax2 = fig.add_subplot(212)
+    BM3_EOS_pressure_plot(minV, maxV, V0s, K0s, 
+        Kp0s, Ts=Ts, ax=ax2, leg=False)
+    if filename is not None:
+        plt.savefig(filename)
+    else:
+        plt.show()
+
 
 def get_V(P, T, fV0, fK0, fKp0):
 
