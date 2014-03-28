@@ -66,7 +66,7 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
         if filename is not None:
             matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        fTs = np.linspace(300, 4000, 100)
+        fTs = np.linspace(0, 4000, 100)
         fig = plt.figure()
         ax = fig.add_subplot(221)
         ax.plot(Ts, V0s, 'ko')
@@ -98,13 +98,18 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
 def _quint_func(x, a, b, c, d, e, f):
     return a*x**5.0 + b*x**4.0 + c*x**3.0 + d*x**2.0 + e*x + f
 
-def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
+def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
+        staticV=None, staticF=None, staticV0=None, staticE0=None,
+        staticK0=None, staticKp0=None, ax=None):
     import matplotlib
     if filename is not None:
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    doplot = False
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        doplot = True
 
     if isinstance(V, np.ndarray):
         ax.scatter(V, F)
@@ -113,29 +118,44 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None):
         ax.plot(fine_vs, fine_fs, 'r-')
     else:
         # Assume we can iteratte on T
+        cmap=matplotlib.cm.ScalarMappable(cmap='hot')
+        cmap.set_clim(vmin=0, vmax=max(Ts)*1.5)
         for i in range(len(Ts)):
             fine_vs = np.linspace(np.min(V[i]), np.max(V[i]), 100)
             fine_fs = BM3_EOS_energy(fine_vs, V0[i], E0[i], K0[i], Kp0[i])
-            ax.plot(fine_vs, fine_fs, 'k--')
-            ax.plot(V[i], F[i], 'o', label='{:5g}'.format(Ts[i]))
-        ax.legend(title="Temperature (K)")
+            c = cmap.to_rgba(Ts[i])
+            ax.plot(fine_vs, fine_fs, '--', color=c)
+            ax.plot(V[i], F[i], 'o', color=c, label='{:5g} K'.format(Ts[i]))
+        if staticV is not None:
+            # Add the static line
+            fine_vs = np.linspace(np.min(staticV[i]), 
+                np.max(staticV[i]), 100)
+            fine_fs = BM3_EOS_energy(fine_vs, staticV0, staticE0, 
+                staticK0, staticKp0)
+            ax.plot(fine_vs, fine_fs, '-k', color=c)
+            ax.plot(staticV, staticF, 'sk', label='static')
+        ax.legend(ncol=3)
 
-    ax.set_xlabel('V (A**3)')
-    ax.set_ylabel('F (eV)')
-    if filename is not None:
-        plt.savefig(filename)
-    else:
-        plt.show()
+    ax.set_xlabel('Volume (A$^3$)')
+    ax.set_ylabel('Helmhotz free energy (eV)')
+    if doplot:
+        if filename is not None:
+            plt.savefig(filename)
+        else:
+            plt.show()
 
     
-def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, 
+def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0, ax=None,
                                  filename=None, Ts=None):
     import matplotlib
     if filename is not None:
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    doplot = False
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        doplot = True
 
     if isinstance(V0, np.ndarray):
         fine_vs = np.linspace(Vmin, Vmax, 100)
@@ -144,20 +164,25 @@ def BM3_EOS_pressure_plot(Vmin, Vmax, V0, K0, Kp0,
         ax.plot(fine_ps, fine_vs, 'r-')
     else:
         # Assume we can iteratte on T
+        cmap=matplotlib.cm.ScalarMappable(cmap='hot')
+        cmap.set_clim(vmin=0, vmax=max(Ts)*1.5)
         for i in range(len(Ts)):
             fine_vs = np.linspace(Vmin, Vmax, 100)
             fine_ps = BM3_EOS_pressure(fine_vs, V0[i], K0[i], Kp0[i])
             # Put in GPa
             fine_ps = fine_ps * 160.218
-            ax.plot(fine_ps, fine_vs, '-', label='{:5g}'.format(Ts[i]))
-        ax.legend(title="Temperature (K)")
+            c = cmap.to_rgba(Ts[i])
+            ax.plot(fine_ps, fine_vs, '-', color=c, 
+                label='{:5g} K'.format(Ts[i]))
+        ax.legend()
 
-    ax.set_xlabel('P (GPa)')
-    ax.set_ylabel('V (A**3)')
-    if filename is not None:
-        plt.savefig(filename)
-    else:
-        plt.show()
+    ax.set_xlabel('Pressure (GPa)')
+    ax.set_ylabel('Volume (A$^3$)')
+    if doplot:
+        if filename is not None:
+            plt.savefig(filename)
+        else:
+            plt.show()
 
 def get_V(P, T, fV0, fK0, fKp0):
 

@@ -161,7 +161,7 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    Ts = [0, 300, 500, 1000, 1500, 2000, 2500, 4000]
+    Ts = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500,  4000]
     Vs = []
     Fs = []
     K0s = []
@@ -180,7 +180,8 @@ if __name__=='__main__':
 
     print "Athermal EOS"
     Vstat, Fstat = get_VF(data, 'static')
-    eos.fit_BM3_EOS(Vstat, Fstat, verbose=True)
+    V0stat, Estat, Kstat, Kpstat = eos.fit_BM3_EOS(Vstat, Fstat, 
+        verbose=True)
     print "0K EOS"
     Vzpe, Fzpe = get_VF(data, 0)
     eos.fit_BM3_EOS(Vzpe, Fzpe, verbose=True)
