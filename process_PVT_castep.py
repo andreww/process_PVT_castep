@@ -198,7 +198,7 @@ if __name__=='__main__':
         Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='MgO_EOS.eps')
 
     fV0, fE0, fK0, fKp0 = eos.fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
-        plot=True, filename='MgO_EOSparams.eps')
+        plot=True, filename='MgO_EOSparams.eps', table='MgO_EOSparams.tex')
 
     print 0, 300, eos.get_V(0, 300, fV0, fK0, fKp0)
     print 10, 300, eos.get_V(10, 300, fV0, fK0, fKp0)

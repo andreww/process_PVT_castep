@@ -35,7 +35,8 @@ def BM3_EOS_pressure(V, V0, K0, Kp0):
                       (1.0+(3.0/4.0)*(Kp0-4.0)*((V0/V)**(2.0/3.0)-1))
     return P 
 
-def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
+def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, 
+        plot=False, filename=None, table=None):
 
     poptv, pconv = spopt.curve_fit(_quint_func, np.array(Ts), 
                       np.array(V0s), p0=[0.0, 0.0, 0.0, 
@@ -60,6 +61,24 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s, plot=False, filename=None):
                       0.0, 0.0, np.mean(Kp0s)])
     fKp0 = lambda t: _quint_func(t, poptkp[0], poptkp[1], poptkp[2],
                                         poptkp[3], poptkp[4], poptkp[5])
+
+    if table is not None:
+        # Write out (LaTeX) table of EOS fitting parameters.
+        fh = open(table, 'w')
+        fh.write(r' parameter & F$_0$ (eV) & V$_0$ (\AA) & K$_0$ (GPa) & K$^{\prime}_0$ \\'+'\n' )
+        fh.write('a & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[0], poptv[0], poptk[0], poptkp[0]))
+        fh.write('b & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[1], poptv[1], poptk[1], poptkp[1]) )
+        fh.write('c & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[2], poptv[2], poptk[2], poptkp[2]) )
+        fh.write('d & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[3], poptv[3], poptk[3], poptkp[3]) )
+        fh.write('e & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[4], poptv[4], poptk[4], poptkp[4]) )
+        fh.write('f & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
+           popte[5], poptv[5], poptk[5], poptkp[5]) )
+        fh.close
 
     if plot:
         import matplotlib
