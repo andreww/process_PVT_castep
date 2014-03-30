@@ -96,7 +96,7 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
         if filename is not None:
             matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        fTs = np.linspace(0, 4000, 100)
+        fTs = np.linspace(0, np.max(Ts), 100)
         if filename is not None:
             fig = plt.figure(figsize=(14.0,14.0), dpi=150)
             #fig.subplots_adjust(left=0.2, right=0.8, top=0.8, bottom=0.2)
@@ -116,7 +116,8 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
         ax.plot(Ts, Kp0s, "ko")
         ax.plot(fTs, fKp0(fTs), 'k-')
         ax.set_xlabel('Temperature (K)')
-        ax.set_ylabel("K$^\{prime}_0$" )
+        ax.set_ylabel(r'K$^{\prime}$$_0$' ) # Ugly hack to work around 
+                                             # matplotlib LaTeX bug.
         ax = fig.add_subplot(224)
         ax.plot(Ts, E0s, 'ko')
         ax.plot(fTs, fE0(fTs), 'k-')
@@ -183,7 +184,7 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
                 staticK0, staticKp0)
             ax.plot(fine_vs, fine_fs, '-k', color=c)
             ax.plot(staticV, staticF, 'sk', label='static')
-        ax.legend(ncol=3, bbox_to_anchor=(0.  , 0.9, 1., .102), loc=3,
+        ax.legend(ncol=3, bbox_to_anchor=(0.  , 0.96, 1., .102), loc=3,
                    mode="expand", borderaxespad=0., numpoints=1)
 
     ax.set_xlabel('Volume (A$^3$)')

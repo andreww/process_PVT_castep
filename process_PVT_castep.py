@@ -161,7 +161,7 @@ if __name__=='__main__':
     for file in sys.argv[1:]:
         data = parse_castep_file(file, data)
 
-    Ts = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500,  4000]
+    Ts = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500]
     Vs = []
     Fs = []
     K0s = []
@@ -195,16 +195,14 @@ if __name__=='__main__':
     #    K0s, Kp0s, Ts=Ts)
 
     eos.BM3_EOS_twoplots(np.floor(min_V), np.ceil(max_V), 
-       Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='MgO_EOS.eps')
+       Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='EOSfits.eps')
 
     fV0, fE0, fK0, fKp0 = eos.fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
-        plot=True, filename='MgO_EOSparams.eps', table='MgO_EOSparams.tex')
+        plot=True, filename='EOSparams.eps', table='EOSparams.tex')
 
+    print "P (GPa) T (K) V (ang**3)"
+    print 0, 0, eos.get_V(0, 0, fV0, fK0, fKp0)
     print 0, 300, eos.get_V(0, 300, fV0, fK0, fKp0)
-    print 10, 300, eos.get_V(10, 300, fV0, fK0, fKp0)
-    print 10, 500, eos.get_V(10, 500, fV0, fK0, fKp0)
-    print 20, 500, eos.get_V(20, 500, fV0, fK0, fKp0)
-    print 30, 500, eos.get_V(30, 500, fV0, fK0, fKp0)
-    print 30, 1500, eos.get_V(30, 1500, fV0, fK0, fKp0)
-    print 30, 2000, eos.get_V(30, 2000, fV0, fK0, fKp0)
+    print 30, 2500, eos.get_V(30, 2500, fV0, fK0, fKp0)
+    print 60, 3500, eos.get_V(60, 3500, fV0, fK0, fKp0)
     
