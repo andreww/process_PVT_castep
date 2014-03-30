@@ -63,21 +63,32 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
                                         poptkp[3], poptkp[4], poptkp[5])
 
     if table is not None:
-        # Write out (LaTeX) table of EOS fitting parameters.
+        # Write out (LaTeX) table of EOS fitting functions
         fh = open(table, 'w')
-        fh.write(r' parameter & F$_0$ (eV) & V$_0$ (\AA) & K$_0$ (GPa) & K$^{\prime}_0$ \\'+'\n' )
-        fh.write('a & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[0], poptv[0], poptk[0], poptkp[0]))
-        fh.write('b & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[1], poptv[1], poptk[1], poptkp[1]) )
-        fh.write('c & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[2], poptv[2], poptk[2], poptkp[2]) )
-        fh.write('d & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[3], poptv[3], poptk[3], poptkp[3]) )
-        fh.write('e & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[4], poptv[4], poptk[4], poptkp[4]) )
-        fh.write('f & {:7g} & {:7g} & {:7g} & {:7g} \\\\ \n'.format(
-           popte[5], poptv[5], poptk[5], poptkp[5]) )
+        fh.write('$F_0(T) = '+ _f_2_latex(popte[0],noplus=True) +'T^5'
+                             + _f_2_latex(popte[1]) +'T^4'
+                             + _f_2_latex(popte[2]) +'T^3'
+                             + _f_2_latex(popte[3]) +'T^2'
+                             + _f_2_latex(popte[4]) +'T'
+                             + _f_2_latex(popte[5]) +'$\n')
+        fh.write('$V_0(T) = '+ _f_2_latex(poptv[0],noplus=True) +'T^5'
+                             + _f_2_latex(poptv[1]) +'T^4'
+                             + _f_2_latex(poptv[2]) +'T^3'
+                             + _f_2_latex(poptv[3]) +'T^2'
+                             + _f_2_latex(poptv[4]) +'T'
+                             + _f_2_latex(poptv[5]) +'$\n')
+        fh.write('$K_0(T) = '+ _f_2_latex(poptk[0]*160.218,noplus=True) +'T^5'
+                             + _f_2_latex(poptk[1]*160.218) +'T^4'
+                             + _f_2_latex(poptk[2]*160.218) +'T^3'
+                             + _f_2_latex(poptk[3]*160.218) +'T^2'
+                             + _f_2_latex(poptk[4]*160.218) +'T'
+                             + _f_2_latex(poptk[5]*160.218) +'$\n')
+        fh.write('$K^{\prime}_0(T) = '+ _f_2_latex(poptkp[0],noplus=True) +'T^5'
+                             + _f_2_latex(poptkp[1]) +'T^4'
+                             + _f_2_latex(poptkp[2]) +'T^3'
+                             + _f_2_latex(poptkp[3]) +'T^2'
+                             + _f_2_latex(poptkp[4]) +'T'
+                             + _f_2_latex(poptkp[5]) +'$\n')
         fh.close
 
     if plot:
@@ -118,8 +129,23 @@ def fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
 
     return fV0, fE0, fK0, fKp0
 
+
 def _quint_func(x, a, b, c, d, e, f):
     return a*x**5.0 + b*x**4.0 + c*x**3.0 + d*x**2.0 + e*x + f
+
+
+def _f_2_latex(value, prec=2, mathmode=True, noplus=False):
+    if noplus:
+        fmt = '{:.'+str(prec)+'e}'
+    else:
+        fmt = '{:+.'+str(prec)+'e}'
+    basestr = fmt.format(value).split('e')[0]
+    expnstr = fmt.format(value).split('e')[1].lstrip('+').lstrip('0').replace('-0', '-', 1)
+    latex = basestr+r'\times 10^{'+expnstr+'}'
+    if not mathmode:
+        latex = '$'+latex+'$'
+    return latex
+
 
 def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
         staticV=None, staticF=None, staticV0=None, staticE0=None,

@@ -190,12 +190,12 @@ if __name__=='__main__':
     Vzpe, Fzpe = get_VF(data, 0)
     eos.fit_BM3_EOS(Vzpe, Fzpe, verbose=True)
 
-    eos.BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
-    eos.BM3_EOS_pressure_plot(np.floor(min_V), np.ceil(max_V), V0s, 
-        K0s, Kp0s, Ts=Ts)
+    #eos.BM3_EOS_energy_plot(Vs, Fs, V0s, E0s, K0s, Kp0s, Ts=Ts)
+    #eos.BM3_EOS_pressure_plot(np.floor(min_V), np.ceil(max_V), V0s, 
+    #    K0s, Kp0s, Ts=Ts)
 
     eos.BM3_EOS_twoplots(np.floor(min_V), np.ceil(max_V), 
-        Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='MgO_EOS.eps')
+       Vs, Fs, V0s, E0s, K0s, Kp0s, Ts, filename='MgO_EOS.eps')
 
     fV0, fE0, fK0, fKp0 = eos.fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
         plot=True, filename='MgO_EOSparams.eps', table='MgO_EOSparams.tex')
