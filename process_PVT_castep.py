@@ -209,4 +209,7 @@ if __name__=='__main__':
     print 60, 0, eos.get_V(60, 0, fV0, fK0, fKp0)
     print 60, 3000, eos.get_V(60, 3000, fV0, fK0, fKp0)
     print 60, 4000, eos.get_V(60, 4000, fV0, fK0, fKp0)
+    print "Extrapolating for forsterite"
+    print 60, 3500, eos.get_V(60, 3500, fV0, fK0, fKp0) 
+    print 60, 4000, eos.get_V(60, 3250, fV0, fK0, fKp0) + ((eos.get_V(60, 3500, fV0, fK0, fKp0)-eos.get_V(60, 3000, fV0, fK0, fKp0))/500.0)*750
     
