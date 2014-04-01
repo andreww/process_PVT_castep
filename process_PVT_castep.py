@@ -203,6 +203,10 @@ if __name__=='__main__':
     print "P (GPa) T (K) V (ang**3)"
     print 0, 0, eos.get_V(0, 0, fV0, fK0, fKp0)
     print 0, 300, eos.get_V(0, 300, fV0, fK0, fKp0)
-    print 30, 2500, eos.get_V(30, 2500, fV0, fK0, fKp0)
-    print 60, 3500, eos.get_V(60, 3500, fV0, fK0, fKp0)
+    print 25, 0, eos.get_V(25, 0, fV0, fK0, fKp0)
+    print 25, 2600, eos.get_V(25, 2500, fV0, fK0, fKp0)
+    print 25, 3200, eos.get_V(25, 3500, fV0, fK0, fKp0)
+    print 60, 0, eos.get_V(60, 0, fV0, fK0, fKp0)
+    print 60, 3000, eos.get_V(60, 3000, fV0, fK0, fKp0)
+    print 60, 4000, eos.get_V(60, 4000, fV0, fK0, fKp0)
     
