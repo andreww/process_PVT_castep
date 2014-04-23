@@ -188,7 +188,7 @@ def BM3_EOS_energy_plot(V, F, V0, E0, K0, Kp0, filename=None, Ts=None,
                    mode="expand", borderaxespad=0., numpoints=1)
 
     ax.set_xlabel('Volume (A$^3$)')
-    ax.set_ylabel('Helmhotz free energy (eV)')
+    ax.set_ylabel('Helmholtz free energy (eV)')
     if doplot:
         if filename is not None:
             plt.savefig(filename)
