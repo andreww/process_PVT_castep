@@ -182,11 +182,11 @@ if __name__=='__main__':
         E0s.append(E0)
         V0s.append(V0)
 
-    print "Athermal EOS"
+    print("Athermal EOS")
     Vstat, Fstat = get_VF(data, 'static')
     V0stat, Estat, Kstat, Kpstat = eos.fit_BM3_EOS(Vstat, Fstat, 
         verbose=True)
-    print "0K EOS"
+    print("0K EOS")
     Vzpe, Fzpe = get_VF(data, 0)
     eos.fit_BM3_EOS(Vzpe, Fzpe, verbose=True)
 
@@ -200,16 +200,16 @@ if __name__=='__main__':
     fV0, fE0, fK0, fKp0 = eos.fit_parameters_quad(Ts, V0s, E0s, K0s, Kp0s,
         plot=True, filename='EOSparams.eps', table='EOSparams.tex')
 
-    print "P (GPa) T (K) V (ang**3)"
-    print 0, 0, eos.get_V(0, 0, fV0, fK0, fKp0)
-    print 0, 300, eos.get_V(0, 300, fV0, fK0, fKp0)
-    print 25, 0, eos.get_V(25, 0, fV0, fK0, fKp0)
-    print 25, 2600, eos.get_V(25, 2500, fV0, fK0, fKp0)
-    print 25, 3200, eos.get_V(25, 3500, fV0, fK0, fKp0)
-    print 60, 0, eos.get_V(60, 0, fV0, fK0, fKp0)
-    print 60, 3000, eos.get_V(60, 3000, fV0, fK0, fKp0)
-    print 60, 4000, eos.get_V(60, 4000, fV0, fK0, fKp0)
-    print "Extrapolating for forsterite"
-    print 60, 3500, eos.get_V(60, 3500, fV0, fK0, fKp0) 
-    print 60, 4000, eos.get_V(60, 3250, fV0, fK0, fKp0) + ((eos.get_V(60, 3500, fV0, fK0, fKp0)-eos.get_V(60, 3000, fV0, fK0, fKp0))/500.0)*750
+    print("P (GPa) T (K) V (ang**3)")
+    print(0, 0, eos.get_V(0, 0, fV0, fK0, fKp0))
+    print(0, 300, eos.get_V(0, 300, fV0, fK0, fKp0))
+    print(25, 0, eos.get_V(25, 0, fV0, fK0, fKp0))
+    print(25, 2600, eos.get_V(25, 2500, fV0, fK0, fKp0))
+    print(25, 3200, eos.get_V(25, 3500, fV0, fK0, fKp0))
+    print(60, 0, eos.get_V(60, 0, fV0, fK0, fKp0))
+    print(60, 3000, eos.get_V(60, 3000, fV0, fK0, fKp0))
+    print(60, 4000, eos.get_V(60, 4000, fV0, fK0, fKp0))
+    print("Extrapolating for forsterite")
+    print(60, 3500, eos.get_V(60, 3500, fV0, fK0, fKp0) )
+    print(60, 4000, eos.get_V(60, 3250, fV0, fK0, fKp0) + ((eos.get_V(60, 3500, fV0, fK0, fKp0)-eos.get_V(60, 3000, fV0, fK0, fKp0))/500.0)*750)
     

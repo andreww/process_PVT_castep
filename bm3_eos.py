@@ -13,11 +13,11 @@ def fit_BM3_EOS(V, F, verbose=False):
     K0 = popt[2]
     Kp0 = popt[3]
     if verbose:
-        print "Fitted 3rd order Birch-Murnaghan EOS parameters:"
-        print " E0  = {:7g} eV".format(E0)
-        print " V0  = {:7g} A**3".format(V0)
-        print " K0  = {:7g} eV.A**-3 ( = {:7g} GPa)".format(K0, K0*160.218)
-        print " K0' = {:7g}".format(Kp0)
+        print("Fitted 3rd order Birch-Murnaghan EOS parameters:")
+        print(" E0  = {:7g} eV".format(E0))
+        print(" V0  = {:7g} A**3".format(V0))
+        print(" K0  = {:7g} eV.A**-3 ( = {:7g} GPa)".format(K0, K0*160.218))
+        print(" K0' = {:7g}".format(Kp0))
     return V0, E0, K0, Kp0
 
 
