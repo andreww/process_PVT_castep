@@ -155,6 +155,65 @@ def get_VF(data_table, T):
     return V, F
 
 
+def plot_components(data_table, ts):
+    """
+    Line graphs of the bits of the free energy
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    # Make plots
+    fig, axs = plt.subplots(nrows=3, ncols=2)
+    axs[0,0].set_ylabel("U (eV)")
+    axs[0,0].set_xlabel("V (A$^{3}$)")
+    axs[1,0].set_ylabel("ZPE (eV)")
+    axs[1,0].set_xlabel("V (A$^{3}$)")
+    axs[2,0].set_ylabel("E (eV)")
+    axs[2,0].set_xlabel("V (A$^{3}$)")
+    axs[0,1].set_ylabel("Fvib (eV)")
+    axs[0,1].set_xlabel("V (A$^{3}$)")
+    axs[1,1].set_ylabel("S (J/mol/K)")
+    axs[1,1].set_xlabel("V (A$^{3}$)")
+    axs[2,1].set_ylabel("Cv (J/mol/K)")
+    axs[2,1].set_xlabel("V (A$^{3}$)")
+
+    cmap=matplotlib.cm.ScalarMappable(cmap='hot')
+    cmap.set_clim(vmin=0, vmax=max(ts)*1.5)
+
+    # Extract data at the ts of interest and add to plots
+    for t in ts:
+        v = []
+        u = []
+        z = []
+        e = []
+        f = []
+        s = []
+        cv = []
+
+        for line in data_table:
+            if line[3] == t:
+                v.append(line[0])
+                u.append(line[1])
+                z.append(line[2])
+                e.append(line[4])
+                f.append(line[5])
+                s.append(line[6])
+                cv.append(line[7])
+        c = cmap.to_rgba(t)
+        axs[0,0].plot(v, u, 'o', color=c, label="{:5g} K".format(t))
+        axs[1,0].plot(v, z, 'o', color=c, label="{:5g} K".format(t))
+        axs[2,0].plot(v, e, 'o', color=c, label="{:5g} K".format(t))
+        axs[0,1].plot(v, f, 'o', color=c, label="{:5g} K".format(t))
+        axs[1,1].plot(v, s, 'o', color=c, label="{:5g} K".format(t))
+        axs[2,1].plot(v, cv, 'o', color=c, label="{:5g} K".format(t))
+
+    plt.tight_layout()
+    plt.savefig("datadump.eps")
+    
+    
+
+
 if __name__=='__main__':
     import sys
     data = []
@@ -162,6 +221,7 @@ if __name__=='__main__':
         data = parse_castep_file(file, data)
 
     Ts = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500]
+    plot_components(data, Ts)
     Vs = []
     Fs = []
     K0s = []
